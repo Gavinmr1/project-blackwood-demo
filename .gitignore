@@ -1,0 +1,64 @@
+# Unreal Engine
+
+# Build artifacts
+Binaries/
+Build/
+
+# Generated data
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Visual Studio
+.vs/
+.vscode/
+
+# Rider
+.idea/
+
+# User/project files
+*.VC.db
+*.VC.opendb
+*.VC.VC.opendb
+*.suo
+*.opensdf
+*.sdf
+*.user
+*.userprefs
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# Crash dumps
+*.dmp
+
+# Autosaves
+Saved/Autosaves/
+Saved/Backup/
+
+# Unreal generated files
+*.pdb
+*.obj
+*.ipch
+*.tlog
+*.lastbuildstate
+
+# Ignore local engine installs
+Engine/
+
+# Ignore generated project files
+*.VC.db
+*.VC.opendb
+
+# Keep source and content
+!Source/**
+!Content/**
+!Config/**
+!Plugins/**
+
+# Git LFS tracked files (patterns only)
+*.uasset
+*.umap
