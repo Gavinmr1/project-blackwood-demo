@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Blackwood|Inventory")
 	const TArray<FBlackwoodInventoryEntry>& GetInventory() const;
 
+	UFUNCTION(BlueprintPure, Category = "Blackwood|Inventory")
+	FText GetInventorySummary() const;
+
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<FBlackwoodInventoryEntry> Inventory;

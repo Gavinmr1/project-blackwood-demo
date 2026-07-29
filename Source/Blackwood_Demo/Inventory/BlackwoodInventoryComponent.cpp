@@ -96,3 +96,23 @@ const TArray<FBlackwoodInventoryEntry>& UBlackwoodInventoryComponent::GetInvento
 {
 	return Inventory;
 }
+
+FText UBlackwoodInventoryComponent::GetInventorySummary() const
+{
+	TArray<FString> SummaryLines;
+
+	for (const FBlackwoodInventoryEntry& Entry : Inventory)
+	{
+		if (IsValid(Entry.ItemDefinition) && Entry.Quantity > 0)
+		{
+			SummaryLines.Add(FString::Printf(
+				TEXT("%s: %d"),
+				*Entry.ItemDefinition->DisplayName.ToString(),
+				Entry.Quantity));
+		}
+	}
+
+	return SummaryLines.IsEmpty()
+		? FText::FromString(TEXT("Inventory Empty"))
+		: FText::FromString(FString::Join(SummaryLines, TEXT("\n")));
+}
