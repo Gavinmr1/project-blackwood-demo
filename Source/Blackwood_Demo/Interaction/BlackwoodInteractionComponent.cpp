@@ -2,10 +2,35 @@
 
 #include "Blackwood_Demo.h"
 #include "Interaction/BlackwoodInteractable.h"
+#include "TimerManager.h"
 
 UBlackwoodInteractionComponent::UBlackwoodInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UBlackwoodInteractionComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GetWorld()->GetTimerManager().SetTimer(
+		FocusRefreshTimer,
+		this,
+		&UBlackwoodInteractionComponent::RefreshFocusedInteractable,
+		0.1f,
+		true);
+}
+
+void UBlackwoodInteractionComponent::EndPlay(
+	const EEndPlayReason::Type EndPlayReason)
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(FocusRefreshTimer);
+	}
+
+	SetFocusedInteractable(nullptr);
+	Super::EndPlay(EndPlayReason);
 }
 
 bool UBlackwoodInteractionComponent::TryInteract()
@@ -15,6 +40,24 @@ bool UBlackwoodInteractionComponent::TryInteract()
 	{
 		UE_LOG(LogBlackwood_Demo, Warning, TEXT("BlackwoodInteractionComponent has no valid owner."));
 		return false;
+	}
+
+	SetFocusedInteractable(TraceForInteractable());
+	if (!IsValid(CurrentInteractable))
+	{
+		return false;
+	}
+
+	IBlackwoodInteractable::Execute_Interact(CurrentInteractable, Owner);
+	return true;
+}
+
+AActor* UBlackwoodInteractionComponent::TraceForInteractable() const
+{
+	AActor* Owner = GetOwner();
+	if (!IsValid(Owner) || !IsValid(GetWorld()))
+	{
+		return nullptr;
 	}
 
 	FVector ViewLocation;
@@ -27,15 +70,45 @@ bool UBlackwoodInteractionComponent::TryInteract()
 	FHitResult Hit;
 	if (!GetWorld()->LineTraceSingleByChannel(Hit, ViewLocation, TraceEnd, ECC_Visibility, QueryParams))
 	{
-		return false;
+		return nullptr;
 	}
 
 	AActor* HitActor = Hit.GetActor();
 	if (!IsValid(HitActor) || !HitActor->GetClass()->ImplementsInterface(UBlackwoodInteractable::StaticClass()))
 	{
-		return false;
+		return nullptr;
 	}
 
-	IBlackwoodInteractable::Execute_Interact(HitActor, Owner);
-	return true;
+	return HitActor;
+}
+
+void UBlackwoodInteractionComponent::RefreshFocusedInteractable()
+{
+	SetFocusedInteractable(TraceForInteractable());
+}
+
+void UBlackwoodInteractionComponent::SetFocusedInteractable(
+	AActor* NewInteractable)
+{
+	if (CurrentInteractable == NewInteractable)
+	{
+		return;
+	}
+
+	CurrentInteractable = NewInteractable;
+	if (!IsValid(CurrentInteractable))
+	{
+		OnFocusedInteractableChanged.Broadcast(FText::GetEmpty(), false);
+		return;
+	}
+
+	FText DisplayName =
+		IBlackwoodInteractable::Execute_GetInteractionDisplayName(CurrentInteractable);
+	if (DisplayName.IsEmpty())
+	{
+		DisplayName =
+			NSLOCTEXT("BlackwoodInteraction", "FallbackInteractionName", "Interact");
+	}
+
+	OnFocusedInteractableChanged.Broadcast(DisplayName, true);
 }

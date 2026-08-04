@@ -31,6 +31,7 @@ public:
 	bool IsRepaired() const;
 
 	virtual void Interact_Implementation(AActor* InteractingActor) override;
+	virtual FText GetInteractionDisplayName_Implementation() const override;
 
 private:
 	void SetRepaired(bool bRepaired);

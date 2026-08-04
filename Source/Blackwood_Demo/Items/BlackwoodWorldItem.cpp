@@ -44,6 +44,11 @@ void ABlackwoodWorldItem::Interact_Implementation(AActor* InteractingActor)
 	}
 }
 
+FText ABlackwoodWorldItem::GetInteractionDisplayName_Implementation() const
+{
+	return InteractionDisplayName;
+}
+
 void ABlackwoodWorldItem::PostLoad()
 {
 	Super::PostLoad();

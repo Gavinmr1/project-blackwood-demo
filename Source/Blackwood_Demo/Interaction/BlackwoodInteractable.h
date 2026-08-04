@@ -17,4 +17,7 @@ class BLACKWOOD_DEMO_API IBlackwoodInteractable
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Blackwood|Interaction")
 	void Interact(AActor* InteractingActor);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Blackwood|Interaction")
+	FText GetInteractionDisplayName() const;
 };

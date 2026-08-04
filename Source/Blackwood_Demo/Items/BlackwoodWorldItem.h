@@ -22,10 +22,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "World Item")
 	TObjectPtr<UBlackwoodItemDefinition> ItemDefinition;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "World Item")
+	FText InteractionDisplayName = NSLOCTEXT(
+		"BlackwoodWorldItem",
+		"DefaultDisplayName",
+		"Item");
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "World Item", meta = (ClampMin = "1", UIMin = "1"))
 	int32 Quantity = 1;
 
 	virtual void Interact_Implementation(AActor* InteractingActor) override;
+	virtual FText GetInteractionDisplayName_Implementation() const override;
 	virtual void PostLoad() override;
 
 #if WITH_EDITOR

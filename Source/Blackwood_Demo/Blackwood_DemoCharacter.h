@@ -11,6 +11,7 @@ class UInputComponent;
 class USkeletalMeshComponent;
 class UCameraComponent;
 class UInputAction;
+class UUserWidget;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -53,9 +54,20 @@ public:
 	ABlackwood_DemoCharacter();
 
 protected:
+	virtual void BeginPlay() override;
 
 	/** Called from Input Actions for movement input */
 	void MoveInput(const FInputActionValue& Value);
+
+	/** One-time interaction prompt widget class configured by the production player Blueprint. */
+	UPROPERTY(EditDefaultsOnly, Category="Blackwood|Interaction")
+	TSubclassOf<UUserWidget> InteractionPromptWidgetClass;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> InteractionPromptWidget;
+
+	UFUNCTION()
+	void HandleFocusedInteractableChanged(FText DisplayName, bool bVisible);
 
 	/** Called from Input Actions for looking input */
 	void LookInput(const FInputActionValue& Value);

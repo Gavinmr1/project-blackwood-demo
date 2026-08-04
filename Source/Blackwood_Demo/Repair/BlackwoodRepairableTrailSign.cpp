@@ -49,6 +49,14 @@ bool ABlackwoodRepairableTrailSign::IsRepaired() const
 	return bIsRepaired;
 }
 
+FText ABlackwoodRepairableTrailSign::GetInteractionDisplayName_Implementation() const
+{
+	return NSLOCTEXT(
+		"BlackwoodRepair",
+		"TrailSignInteractionName",
+		"Trail Sign");
+}
+
 void ABlackwoodRepairableTrailSign::Interact_Implementation(AActor* InteractingActor)
 {
 	if (bIsRepaired)

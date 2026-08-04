@@ -9,6 +9,8 @@
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Blackwood_Demo.h"
+#include "Blueprint/UserWidget.h"
+#include "Interaction/BlackwoodInteractionComponent.h"
 
 ABlackwood_DemoCharacter::ABlackwood_DemoCharacter()
 {
@@ -42,6 +44,52 @@ ABlackwood_DemoCharacter::ABlackwood_DemoCharacter()
 	// Configure character movement
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 	GetCharacterMovement()->AirControl = 0.5f;
+}
+
+void ABlackwood_DemoCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UBlackwoodInteractionComponent* InteractionComponent = FindComponentByClass<UBlackwoodInteractionComponent>();
+	if (!InteractionComponent || !InteractionPromptWidgetClass || !IsLocallyControlled())
+	{
+		return;
+	}
+
+	InteractionPromptWidget = CreateWidget<UUserWidget>(GetWorld(), InteractionPromptWidgetClass);
+	if (!InteractionPromptWidget)
+	{
+		UE_LOG(LogBlackwood_Demo, Warning, TEXT("Failed to create interaction prompt widget for '%s'."), *GetNameSafe(this));
+		return;
+	}
+
+	InteractionPromptWidget->AddToViewport();
+	InteractionComponent->OnFocusedInteractableChanged.AddDynamic(
+		this, &ABlackwood_DemoCharacter::HandleFocusedInteractableChanged);
+}
+
+void ABlackwood_DemoCharacter::HandleFocusedInteractableChanged(FText DisplayName, bool bVisible)
+{
+	if (!InteractionPromptWidget)
+	{
+		return;
+	}
+
+	static const FName UpdatePromptFunctionName(TEXT("UpdatePrompt"));
+	UFunction* UpdatePromptFunction = InteractionPromptWidget->FindFunction(UpdatePromptFunctionName);
+	if (!UpdatePromptFunction)
+	{
+		return;
+	}
+
+	struct FUpdatePromptParameters
+	{
+		FText DisplayName;
+		bool bVisible;
+	};
+
+	FUpdatePromptParameters Parameters{MoveTemp(DisplayName), bVisible};
+	InteractionPromptWidget->ProcessEvent(UpdatePromptFunction, &Parameters);
 }
 
 void ABlackwood_DemoCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
